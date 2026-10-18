@@ -1,4 +1,5 @@
-// Copiado tal cual del nodo n8n "Account Config". No editar aqui: lo ejecuta run_n8n_node() en finalize.js.
+// Copiado tal cual del nodo n8n "Account Config" (XAUUSD 3.8 - restaurado (00:01, sin noticias)).
+// No editar aqui: lo ejecuta runN8nNode() en finalize.js.
 // Balance real de la cuenta, leido de la pestana "Balance" del Sheet.
 //
 // Antes esto era un Set node con balance: 6500 fijo. El balance de la cuenta

@@ -1,4 +1,5 @@
-// Copiado tal cual del nodo n8n "Code: Calculate Lot Size". No editar aqui: lo ejecuta run_n8n_node() en finalize.js.
+// Copiado tal cual del nodo n8n "Code: Calculate Lot Size" (XAUUSD 3.8 - restaurado (00:01, sin noticias)).
+// No editar aqui: lo ejecuta runN8nNode() en finalize.js.
 const balance = $('Account Config').item.json.balance;
 const riskPercent = $('Account Config').item.json.riskPercent;
 const maxRiskPercent = $('Account Config').item.json.maxRiskPercent;

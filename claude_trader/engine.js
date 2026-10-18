@@ -1,5 +1,5 @@
 // Motor de estructura SMC/ICT copiado TAL CUAL del nodo n8n
-// "Code: Analyze Market Structure" (XAUUSD 3.9-lite - RR honesto + sombra NY + PD + RR5).
+// "Code: Analyze Market Structure" (XAUUSD 3.8 - restaurado (00:01, sin noticias)).
 // Solo cambia la orquestacion final: en vez de leer nodos de n8n ($('...')),
 // lee un JSON con las velas de Axi MT5 y escribe el mismo objeto de salida.
 //
@@ -463,9 +463,6 @@ const dataQuality = {
              marketMap.H1.lastCandleTime && marketMap.M5.lastCandleTime),
 };
 
-const SL_FLOOR = /XAU/i.test(symbol || "") ? 3.0 : 0.0006;
-const slBuffer = +Math.max(marketMap.M5.avgRange10 || 0, SL_FLOOR).toFixed(5);
-
 function zoneEvidence(tf) {
   const zones = [].concat(tf.unmitigatedOrderBlocks || [], tf.unmitigatedFVGs || []);
   const withHist = zones.filter(z => z.reactionHistory && z.reactionHistory.totalTouches > 0);
@@ -494,8 +491,5 @@ process.stdout.write(JSON.stringify({
   quoteTimestamp: input.quote.datetime,
   dataQuality,
   marketMap,
-  slBuffer,
-  slBufferBasis: "max(1x rango medio 10 velas M5 = " + (marketMap.M5.avgRange10 || 0) +
-                 ", piso " + SL_FLOOR + ")",
   zoneEvidence: zoneEvidence(marketMap.M5),
 }, null, 2) + "\n");

@@ -459,13 +459,9 @@ SL BUFFER REQUIREMENT (do not skip this):
 
 The structural level above is the LOGICAL floor/ceiling, not the actual stop price. Never place the stop exactly on the structural level -- normal noise, spread, and stop-hunting wicks routinely sweep a level by a small margin before the real move continues, so a stop glued to the level gets taken out for no real reason.
 
-El buffer YA VIENE CALCULADO. No lo estimes ni lo derives de las velas:
-no recibes velas crudas, asi que cualquier promedio que inventes seria falso.
-
-slBuffer = {{ $('Code: Analyze Market Structure').item.json.slBuffer }}
-(base: {{ $('Code: Analyze Market Structure').item.json.slBufferBasis }})
-
-Usa EXACTAMENTE ese valor como buffer.
+Add a buffer beyond the structural level, sized as whichever is LARGER:
+(a) roughly 1x the average range (high-low) of the last 10 M5 candles, or
+(b) a minimum of $3.00 for XAU/USD.
 
 For Buy Limits: final invalidation = structural swing low / OB origin / FVG failure level, MINUS the buffer.
 For Sell Limits: final invalidation = structural swing high / OB origin / FVG failure level, PLUS the buffer.
@@ -532,12 +528,12 @@ If target cannot be defined:
 
 ---
 
-Minimum acceptable risk/reward for executable orders: 1:2.5
+Minimum acceptable risk/reward for executable orders: 1:2.0
 Preferred risk/reward: 1:3 or better
 
 Calculate riskReward using entryZone as the entry price (not premiumEntryZone). premiumEntryZone is a backup/deeper limit level only — it must never be used to compute or justify the stated riskReward.
 
-If risk/reward is below 1:2.5:
+If risk/reward is below 1:2.0:
 
 * do not automatically remove the zones
 * return the best entryZone and premiumEntryZone
@@ -668,7 +664,7 @@ Buy Limit rules:
 * entry must be at discount, bullish OB, bullish FVG, mitigation, sweep retest, or retracement
 * invalidation must be below entry
 * target must be above entry
-* risk/reward should be at least 1:2.5, computed from entryZone to invalidation to target
+* risk/reward should be at least 1:2.0, computed from entryZone to invalidation to target
 * setup must have a logical bullish liquidity objective
 
 Sell Limit rules:
@@ -679,7 +675,7 @@ Sell Limit rules:
 * entry must be at premium, bearish OB, bearish FVG, mitigation, sweep retest, or retracement
 * invalidation must be above entry
 * target must be below entry
-* risk/reward should be at least 1:2.5, computed from entryZone to invalidation to target
+* risk/reward should be at least 1:2.0, computed from entryZone to invalidation to target
 * setup must have a logical bearish liquidity objective
 
 If these rules are not satisfied:
@@ -731,7 +727,7 @@ Return Neutral / NONE only if:
 * liquidity logic is completely unclear
 * invalidation must be guessed
 * target must be guessed
-* risk/reward is below 1:2.5
+* risk/reward is below 1:2.0
 * both bullish and bearish ideas are equally weak and direction would be a guess
 
 Neutral does NOT mean there are no zones.
@@ -804,7 +800,7 @@ If there is NO valid executable setup but usable institutional zones exist, retu
 "pair": "{{ $('Code: Analyze Market Structure').item.json.symbol }}",
 "bias": "Neutral",
 "confidence": "Low",
-"confluenceSummary": "State the SPECIFIC structural/liquidity reason in 1-2 lines (e.g. 'H4 bullish but H1 lacks confirmation', 'RR only 1.3, below the 1.5 floor', 'M5 has not swept liquidity yet') -- never repeat this generic sentence.",
+"confluenceSummary": "Institutional interest zones exist, but current structure, liquidity, risk/reward, or news risk does not justify execution yet.",
 "executionPlan": {
 "entryZone": "Best available optimal interest zone from the market map",
 "premiumEntryZone": "Deeper, more conservative interest zone from the market map",
@@ -814,7 +810,7 @@ If there is NO valid executable setup but usable institutional zones exist, retu
 "target": "Logical liquidity target if available, otherwise N/A",
 "riskReward": "Estimated RR if available, otherwise N/A"
 },
-"quickNote": "Name the ONE specific blocking reason (do not use this generic sentence): which exact filter failed -- HTF/M5 structure misalignment, missing liquidity sweep, RR below the 1:1.5 floor (state the number), unclear invalidation, unclear target -- or name the specific high-impact news event and its time if that was the reason.",
+"quickNote": "Planning zones only. No executable limit order because confirmation, confluence, risk/reward, or news conditions are incomplete.",
 "orderType": "NONE"
 }
 

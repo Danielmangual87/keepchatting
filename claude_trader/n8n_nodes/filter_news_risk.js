@@ -1,4 +1,5 @@
-// Copiado tal cual del nodo n8n "Code: Filter News Risk". No editar aqui: lo ejecuta run_n8n_node() en finalize.js.
+// Copiado tal cual del nodo n8n "Code: Filter News Risk" (XAUUSD 3.8 - restaurado (00:01, sin noticias)).
+// No editar aqui: lo ejecuta runN8nNode() en finalize.js.
 // ---------------------------------------------------------------------------
 // Filters the ForexFactory economic calendar feed (fetched by the preceding
 // HTTP Request node) down to USD / all-country events near "now", so the
@@ -6,19 +7,6 @@
 // back to "NO_NEWS_DATA_PROVIDED". Free, no API key -- this is the same
 // public JSON their own calendar widget uses.
 // ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// BLOQUEO POR NOTICIA (parche 11-sep-2026)
-// Si hay un evento High entre el momento del análisis y las
-// NEWS_BLOCK_UNTIL_HOUR_AST (mediodía) de ESE MISMO DÍA en Puerto Rico, no se
-// opera. Cubre los datos de la mañana de EE.UU. (08:30, 09:00, 10:00) desde
-// cualquier cron (00:05, 03:05, 06:31); un FOMC de las 14:00 no bloquea, a
-// propósito. Antes solo bloqueaba a ±60 min del análisis, y una orden límite
-// vive 48 h: el CPI de las 08:30 reventó una posición abierta a las 03:47.
-// LOOKAHEAD_HOURS (más abajo) es la variable VIEJA: solo arma el texto
-// informativo "Close by ..." y no bloquea nada.
-// ---------------------------------------------------------------------------
-const NEWS_BLOCK_UNTIL_HOUR_AST = 12;
-const NEWS_COUNTRIES = ["USD", "All"];
 const WINDOW_MINUTES = 120; // how far out to even mention an event
 const HIGH_IMPACT_BLOCK_MINUTES = 60; // matches the prompt's existing "reduce confidence heavily" rule
 const LOOKAHEAD_HOURS = 24; // how far ahead to flag a same-day High-impact event for manual close-by
@@ -57,6 +45,14 @@ if (!Array.isArray(events) || (events.length > 0 && !looksLikeEvents)) {
   events = [];
 }
 
+// ---------------------------------------------------------------------------
+// NOTICIAS DESACTIVADAS (3.8-restore, 2026-10-17, decisión del usuario):
+// no se toma ninguna noticia en consideración. Se descartan todos los eventos
+// del calendario, así que newsEvents sale vacío, highImpactWithin60Min=false
+// y closeByNote="". El prompt lo lee como "sin riesgo de noticias".
+// ---------------------------------------------------------------------------
+events = [];
+
 const now = new Date();
 
 const relevant = events.filter((e) => {
@@ -84,30 +80,6 @@ const upcomingHigh = events
   .sort((a, b) => a.evTime - b.evTime);
 
 const nextHighImpactEvent = upcomingHigh[0] || null;
-
-// Corte: hoy (fecha en AST) a las NEWS_BLOCK_UNTIL_HOUR_AST. AST = UTC-4 sin
-// horario de verano, así que "12:00 AST" es siempre 16:00 UTC.
-const nowAst = new Date(now.getTime() - 4 * 3600000);
-const blockUntil = new Date(Date.UTC(nowAst.getUTCFullYear(), nowAst.getUTCMonth(), nowAst.getUTCDate(),
-                                     NEWS_BLOCK_UNTIL_HOUR_AST + 4, 0, 0));
-
-// Evento High más cercano entre ahora y el corte (solo futuros).
-const blockingEvent = events
-  .filter((e) => e && e.date && NEWS_COUNTRIES.includes(e.country) && e.impact === "High")
-  .map((e) => ({ ...e, evTime: new Date(e.date) }))
-  .filter((e) => !isNaN(e.evTime.getTime()) && e.evTime > now && e.evTime <= blockUntil)
-  .sort((a, b) => a.evTime - b.evTime)[0] || null;
-
-const blockedByNews = !!blockingEvent;
-let blockedByNewsReason = "";
-if (blockedByNews) {
-  const ast = new Date(blockingEvent.evTime.getTime() - 4 * 3600000);
-  const hhmm = ast.toISOString().slice(11, 16);
-  const hoursAway = ((blockingEvent.evTime - now) / 3600000).toFixed(1);
-  blockedByNewsReason = `NO OPERAR: noticia de alto impacto (${blockingEvent.country}) ` +
-    `"${blockingEvent.title}" hoy a las ${hhmm} AST (en ${hoursAway} h)`;
-}
-
 let closeByNote = "";
 if (!newsDataAvailable) {
   // Se escribe al Sheet para que quede EXPLICITO que no hubo datos, en vez
@@ -130,8 +102,6 @@ return [{
       previous: e.previous,
     })),
     highImpactWithin60Min,
-    blockedByNews,
-    blockedByNewsReason,
     closeByNote,
     newsDataAvailable,
     newsError,
