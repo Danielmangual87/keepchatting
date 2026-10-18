@@ -29,6 +29,18 @@ bajista de H1 4181.32-4198.92. El SL de 4185.51 ($4.04) fue rechazado por
 ajustado; se aceptó un SL de 4193.12 (mitad del OB 4190.12 + 3) con TP 4156.09,
 RR 1:2.2 y 0.04 lotes.
 
+### Noticias: solo informativas
+- Nunca bloquean una orden (no usar `NEWS_BLOCK`; `finalize.js` se corre sin
+  `--calendar`).
+- En cada análisis, buscar con WebSearch el calendario de EE.UU. del día y los
+  titulares que mueven el oro, y dar al usuario un resumen con sugerencias
+  concretas (mantener, mover, reducir o cancelar). Si no se encuentra el
+  calendario, decirlo; no suponer.
+
+### Análisis programado
+- Tarea programada de lunes a viernes a las 00:00 hora de Puerto Rico, en esta
+  sesión. Prepara la orden y pide confirmación; no la coloca sola.
+
 ### Ejecución
 - Cuenta de pruebas: Axi MT5 DEMO, login 10069167.
 - Toda orden se coloca, modifica o cancela solo tras confirmación explícita del
