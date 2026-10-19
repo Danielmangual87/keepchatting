@@ -2,8 +2,8 @@
 
 Claude llama al conector de Axi (get_mt5_candles para D1/H4/H1/M5 y
 get_mt5_quote). Esas respuestas quedan en el registro de la sesion de Claude
-Code (un .jsonl); este script toma la respuesta MAS RECIENTE de cada periodo y
-la convierte al formato que espera el motor, sin copiar velas a mano.
+Code (un .jsonl); este script toma la respuesta MAS RECIENTE de cada periodo
+del simbolo de la ultima cotizacion y la convierte al formato que espera el motor, sin copiar velas a mano.
 
 Uso:
     python3 axi_input.py <sesion.jsonl> <salida.json> [--limit 225]
@@ -45,7 +45,7 @@ def latest_axi_results(transcript_path):
                     except ValueError:
                         continue
                     if name.endswith("get_mt5_candles") and isinstance(data, list):
-                        candles[args.get("period") or "M1"] = (args.get("symbol"), data)
+                        candles[(args.get("symbol"), args.get("period") or "M1")] = data
                     elif name.endswith("get_mt5_quote") and isinstance(data, dict):
                         quote = data
     return candles, quote
@@ -70,13 +70,13 @@ def main():
     args = ap.parse_args()
 
     candles, quote = latest_axi_results(args.transcript)
-    missing = [p for p in PERIODS if p not in candles]
-    if missing:
-        raise SystemExit(f"Faltan velas de Axi para: {', '.join(missing)}")
     if quote is None:
         raise SystemExit("Falta la cotizacion (get_mt5_quote)")
-
     raw_symbol = quote["symbol"]
+    missing = [p for p in PERIODS if (raw_symbol, p) not in candles]
+    if missing:
+        raise SystemExit(f"Faltan velas de Axi de {raw_symbol} para: {', '.join(missing)}")
+
     # n8n mostraba el par como "XAU/USD"; se conserva para que los filtros por
     # simbolo (piso del SL, calculo de lote) se comporten igual.
     symbol = raw_symbol[:3] + "/" + raw_symbol[3:] if len(raw_symbol) == 6 else raw_symbol
@@ -93,7 +93,7 @@ def main():
         },
     }
     for p in PERIODS:
-        series = sorted((to_engine_candle(c) for c in candles[p][1]), key=lambda c: c["datetime"])
+        series = sorted((to_engine_candle(c) for c in candles[(raw_symbol, p)]), key=lambda c: c["datetime"])
         out[p] = series[-args.limit:]
 
     with open(args.output, "w", encoding="utf-8") as fh:
