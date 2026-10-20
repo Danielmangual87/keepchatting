@@ -44,10 +44,17 @@ RR 1:2.2 y 0.04 lotes.
 
 ### Análisis programado
 - Tarea programada de lunes a viernes a las 00:01 hora de Puerto Rico, en esta
-  sesión. Prepara la orden y pide confirmación; no la coloca sola.
+  sesión.
+- Autorización del usuario (20-oct-2026): en la cuenta DEMO, si el análisis da
+  una orden ejecutable, se coloca **sin pedir confirmación** y se le avisa
+  después. Condiciones: Buy/Sell Limit con lote no rechazado, riesgo ≤ 1,5 %,
+  RR 1:2 a 1:5, SL no pegado, y una cotización fresca confirma que la entrada
+  sigue del lado correcto y el TP no se ha alcanzado. Si hay una pendiente de
+  XAUUSD distinta, se cancela y se reemplaza.
 
 ### Ejecución
 - Cuenta de pruebas: Axi MT5 DEMO, login 10069167.
-- Toda orden se coloca, modifica o cancela solo tras confirmación explícita del
-  usuario, mostrando antes todos los parámetros.
+- Fuera de la ejecución automática del análisis programado (y siempre en
+  cuentas reales), toda orden se coloca, modifica o cancela solo tras
+  confirmación explícita del usuario, mostrando antes todos los parámetros.
 - El usuario escribe en español; responder en español.
