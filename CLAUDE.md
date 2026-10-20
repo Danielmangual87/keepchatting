@@ -45,7 +45,7 @@ RR 1:2.2 y 0.04 lotes.
 ### Análisis programado
 - Tarea programada de lunes a viernes a las 00:01 hora de Puerto Rico, en esta
   sesión.
-- Autorización del usuario (20-oct-2026): en la cuenta DEMO, si el análisis da
+- Autorización del usuario (19-oct-2026, 23:25 AST): en la cuenta DEMO, si el análisis da
   una orden ejecutable, se coloca **sin pedir confirmación** y se le avisa
   después. Condiciones: Buy/Sell Limit con lote no rechazado, riesgo ≤ 1,5 %,
   RR 1:2 a 1:5, SL no pegado, y una cotización fresca confirma que la entrada
