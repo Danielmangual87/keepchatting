@@ -18,7 +18,9 @@ const fs = require("fs");
 const path = require("path");
 const { decide } = require("./strategy");
 
+// XAUUSD por defecto; para otro simbolo se pasan spread y contrato en mgmt.
 const SPREAD = 0.16;
+const CONTRACT = 100;
 
 function loadData(dataDir, snapDir) {
   const M5 = JSON.parse(fs.readFileSync(path.join(dataDir, "XAUUSD_M5.json"), "utf8"));
@@ -33,7 +35,8 @@ const iso = (t) => new Date(t * 1000).toISOString().slice(0, 16).replace("T", " 
 function run({ M5, days }, name, stratParams, mgmt, decideFn = decide) {
   const m = {
     beAt: 0.5, beOffset: 0.2, partialAtR: null, partialFrac: 0.5,
-    expiryH: 48, cancelUtcHour: null, risk: 0.01, startBalance: 5000, ...mgmt,
+    expiryH: 48, cancelUtcHour: null, risk: 0.01, startBalance: 5000,
+    spread: SPREAD, contract: CONTRACT, ...mgmt,
   };
   let balance = m.startBalance;
   let pending = null;
@@ -46,7 +49,7 @@ function run({ M5, days }, name, stratParams, mgmt, decideFn = decide) {
     const sgn = pos.dir === "sell" ? -1 : 1;
     const r = (sgn * (price - pos.entry)) / pos.dist;
     pos.legs.push({ price, frac, r, why, t });
-    balance += pos.lots * frac * 100 * sgn * (price - pos.entry);
+    balance += pos.lots * frac * m.contract * sgn * (price - pos.entry);
     pos.remaining -= frac;
     if (pos.remaining <= 1e-9) {
       const R = pos.legs.reduce((a, l) => a + l.r * l.frac, 0);
@@ -65,8 +68,8 @@ function run({ M5, days }, name, stratParams, mgmt, decideFn = decide) {
     let fillBar = false;
     if (pending) {
       const sell = pending.dir === "sell";
-      if (sell ? bar.h >= pending.entry : bar.l + SPREAD <= pending.entry) {
-        const lots = Math.max(0.01, Math.floor((balance * m.risk) / (pending.dist * 100) * 100) / 100);
+      if (sell ? bar.h >= pending.entry : bar.l + m.spread <= pending.entry) {
+        const lots = Math.max(0.01, Math.floor((balance * m.risk) / (pending.dist * m.contract) * 100) / 100);
         pos = { ...pending, sl0: pending.sl, lots, fillT: bar.t, remaining: 1, legs: [], beDone: false, partialDone: false, mfeR: 0 };
         pending = null;
         fillBar = true;
@@ -76,9 +79,9 @@ function run({ M5, days }, name, stratParams, mgmt, decideFn = decide) {
     const sell = pos.dir === "sell";
     const sgn = sell ? -1 : 1;
     // Lado que cierra: venta cierra con ask, compra con bid.
-    const hi = sell ? bar.h + SPREAD : bar.h;
-    const lo = sell ? bar.l + SPREAD : bar.l;
-    const op = sell ? bar.o + SPREAD : bar.o;
+    const hi = sell ? bar.h + m.spread : bar.h;
+    const lo = sell ? bar.l + m.spread : bar.l;
+    const op = sell ? bar.o + m.spread : bar.o;
     const slHit = sell ? hi >= pos.sl : lo <= pos.sl;
     if (slHit) {
       const gap = !fillBar && (sell ? op > pos.sl : op < pos.sl);
@@ -103,7 +106,7 @@ function run({ M5, days }, name, stratParams, mgmt, decideFn = decide) {
     }
     if (m.beAt !== null && !pos.beDone && progress >= m.beAt) {
       const be = pos.entry - sgn * m.beOffset;
-      const closeSide = sell ? bar.c + SPREAD : bar.c;
+      const closeSide = sell ? bar.c + m.spread : bar.c;
       if (sell ? closeSide < be : closeSide > be) { pos.sl = be; pos.beDone = true; }
     }
   }
