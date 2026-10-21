@@ -55,6 +55,7 @@ for (const [key, list] of Object.entries(groups)) {
   for (const [name, mg] of MGMT) {
     const r = run({ M5, days }, name, {}, { ...SYMBOLS[symbol], ...mg }, toOrder);
     console.log(`-- ${name}: operaciones ${r.trades}, ganadas ${r.wins}, perdidas ${r.losses}, BE ${r.be}, R total ${r.totalR}, balance ${r.finalBalance}${r.openAtEnd ? " (una sigue abierta)" : ""}`);
+    console.log(`   por mes: ${Object.entries(r.monthly).map(([k, v]) => `${k} ${v.n} ops ${v.R > 0 ? "+" : ""}${v.R}R`).join(" | ")}`);
     if (name === MGMT[0][0]) {
       for (const sg of r.signals) console.log(`   ${sg.day}  ${sg.action}${sg.why ? " " + sg.why : ""}`);
       for (const t of r.tradesList) console.log(`   > ${t.dir} ${t.entry} SL ${t.sl0} TP ${t.tp} | lleno ${t.filled} | cierre ${t.closed} ${t.exit} ${t.R}R | ${t.lots} lotes`);
