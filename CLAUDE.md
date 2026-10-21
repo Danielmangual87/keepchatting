@@ -52,9 +52,29 @@ RR 1:2.2 y 0.04 lotes.
   sigue del lado correcto y el TP no se ha alcanzado. Si hay una pendiente de
   XAUUSD distinta, se cancela y se reemplaza.
 
+### Break even
+Autorización del usuario (21-oct-2026, 09:15 AST): en la cuenta DEMO, cuando una
+posición abierta de XAUUSD recorre el **50 % del camino al TP**, el SL se mueve
+a break even **sin pedir confirmación** y se le avisa después.
+- Revisión: tarea horaria (L-V) y, mientras haya una posición abierta, una
+  revisión cada 15 min que se reprograma sola con `send_later` (las tareas
+  recurrentes no pueden ser de menos de 1 h).
+- Procedimiento por posición (E = priceOpen, TP = priceTP):
+  1. Nivel 50 % = E + 0.5·(TP − E). Precio BE: venta E − 0.20, compra E + 0.20.
+  2. Si el SL ya está en BE o mejor (venta SL ≤ E, compra SL ≥ E): nada que hacer.
+  3. Velas M1 de XAUUSD desde `timeCreate`: ¿algún low (venta) ≤ nivel 50 %, o
+     algún high (compra) ≥ nivel 50 %?
+  4. Si se alcanzó y el BE es válido con la cotización actual (venta ask < BE,
+     compra bid > BE): `modify_mt5_position` con priceSL = BE y **el mismo TP**;
+     verificar con `get_mt5_positions` y avisar (mensaje + PushNotification).
+  5. Si se alcanzó pero el precio ya volvió más allá de la entrada, no modificar
+     y avisar una sola vez.
+- Nunca alejar el SL, nunca tocar el TP, nunca cerrar la posición.
+- Sin posición abierta, la revisión termina en silencio.
+
 ### Ejecución
 - Cuenta de pruebas: Axi MT5 DEMO, login 10069167.
-- Fuera de la ejecución automática del análisis programado (y siempre en
-  cuentas reales), toda orden se coloca, modifica o cancela solo tras
+- Fuera de la ejecución automática del análisis programado y del break even
+  (y siempre en cuentas reales), toda orden se coloca, modifica o cancela solo tras
   confirmación explícita del usuario, mostrando antes todos los parámetros.
 - El usuario escribe en español; responder en español.
