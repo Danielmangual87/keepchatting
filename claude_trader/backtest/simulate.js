@@ -56,7 +56,7 @@ function run({ M5, days }, name, stratParams, mgmt, decideFn = decide) {
       trades.push({
         day: pos.day, dir: pos.dir, entry: pos.entry, sl0: pos.sl0, tp: pos.tp, dist: pos.dist, lots: pos.lots,
         filled: iso(pos.fillT), closed: iso(t), R: +R.toFixed(3), exit: why, mfeR: +pos.mfeR.toFixed(2),
-        balance: +balance.toFixed(2),
+        balance: +balance.toFixed(2), tag: pos.tag,
       });
       pos = null;
     }
