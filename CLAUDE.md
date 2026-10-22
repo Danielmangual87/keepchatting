@@ -56,9 +56,11 @@ RR 1:2.2 y 0.04 lotes.
 Autorización del usuario (21-oct-2026, 09:15 AST): en la cuenta DEMO, cuando una
 posición abierta de XAUUSD recorre el **50 % del camino al TP**, el SL se mueve
 a break even **sin pedir confirmación** y se le avisa después.
-- Revisión: tarea horaria (L-V) y, mientras haya una posición abierta, una
-  revisión cada 15 min que se reprograma sola con `send_later` (las tareas
-  recurrentes no pueden ser de menos de 1 h).
+- Revisión: solo de **12:01am a 3:00pm hora de Puerto Rico, L-V** (pedido del
+  usuario, 22-oct-2026): tarea horaria a los :31 de 12am a 2pm y, mientras haya
+  una posición abierta, una revisión cada 15 min que se reprograma sola con
+  `send_later` hasta las 3:00pm (las tareas recurrentes no pueden ser de menos
+  de 1 h). Fuera de ese horario no se revisa: la posición sigue con su SL/TP.
 - Procedimiento por posición (E = priceOpen, TP = priceTP):
   1. Nivel 50 % = E + 0.5·(TP − E). Precio BE: venta E − 0.20, compra E + 0.20.
   2. Si el SL ya está en BE o mejor (venta SL ≤ E, compra SL ≥ E): nada que hacer.
