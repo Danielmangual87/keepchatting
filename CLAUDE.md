@@ -53,24 +53,29 @@ RR 1:2.2 y 0.04 lotes.
   XAUUSD distinta, se cancela y se reemplaza.
 
 ### Revisión horaria de órdenes pendientes
-Autorización del usuario (22-oct-2026, 22:45 AST): mientras haya una orden
-pendiente de XAUUSD en la cuenta DEMO, se revisa cada hora (tarea "Revisión
-horaria XAUUSD DEMO", a los :33 de cada hora, domingo a viernes). Si el precio se alejó mucho de la entrada,
-se reanaliza y, si hace falta, se cancela la vieja y se pone la nueva **sin
-pedir confirmación**, avisando después.
-- No se hace nada si hay una posición abierta (no se mueve SL ni TP), si el
-  mercado está cerrado o si no hay pendiente de XAUUSD.
-- Si la pendiente se llenó desde la última revisión, solo se avisa.
+Autorización del usuario (22-oct-2026, 22:45 AST; EURUSD añadido el mismo día):
+mientras haya una orden pendiente de XAUUSD o EURUSD en la cuenta DEMO, se revisa
+cada hora (tarea "Revisión horaria XAUUSD/EURUSD DEMO", a los :33 de cada hora,
+domingo a viernes). Si el precio se alejó mucho de la entrada, se reanaliza y, si
+hace falta, se cancela la vieja y se pone la nueva **sin pedir confirmación**,
+avisando después.
+- Cada símbolo se revisa por separado. No se toca un símbolo con posición
+  abierta (no se mueve SL ni TP); tampoco si el mercado está cerrado o no hay
+  pendiente de ese símbolo.
+- Si una pendiente se llenó desde la última revisión, solo se avisa.
 - "Muy lejos" = el precio se alejó de la entrada al menos 1x
   `marketMap.H1.avgRange10` más que cuando se colocó la orden (precio de
   referencia: cierre M5 de la vela de `timeSetup`), o el precio tocó el TP sin
   llenar la orden.
 - Si el TP se tocó sin llenar: se cancela siempre, y se reanaliza.
-- Reanálisis = procedimiento completo de 3.8 con datos frescos y las reglas de
-  este archivo. Si la señal nueva es ejecutable, distinta y cumple las
-  condiciones del análisis programado → cancelar y colocar la nueva. Si
-  coincide → mantener. Si es `NONE` → mantener la vieja salvo que su zona ya no
-  exista en la estructura o el TP se haya tocado; en ese caso cancelarla.
+- Reanálisis = procedimiento completo de 3.8 para ese símbolo con datos frescos
+  y las reglas de este archivo. Si la señal nueva es ejecutable, distinta y
+  cumple las condiciones del análisis programado → cancelar y colocar la nueva.
+  Si coincide → mantener. Si es `NONE` → mantener la vieja salvo que su zona ya
+  no exista en la estructura o el TP se haya tocado; en ese caso cancelarla.
+- EURUSD usa las mismas reglas de SL en proporción: buffer = el mayor entre 1x
+  `marketMap.M5.avgRange10` y 3 pips (0.0003), y SL a al menos 0.75x
+  `marketMap.H1.avgRange10`. El lote lo calcula `calculate_lot_size.js`.
 - Las revisiones sin cambios no generan mensaje.
 
 ### Break even: DESACTIVADO
