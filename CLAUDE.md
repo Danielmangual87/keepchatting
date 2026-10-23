@@ -78,6 +78,15 @@ avisando después.
   `marketMap.H1.avgRange10`. El lote lo calcula `calculate_lot_size.js`.
 - Las revisiones sin cambios no generan mensaje.
 
+### Cierre de viernes (nada abierto el fin de semana)
+Regla del usuario (23-oct-2026), cuenta DEMO, XAUUSD y EURUSD, sin pedir
+confirmación (tarea "Cierre de viernes DEMO", viernes 12:01 pm y 3:01 pm AST):
+- Viernes 12:00 pm AST: toda orden pendiente que no se haya llenado se cancela.
+- Viernes 3:00 pm AST: toda posición abierta se cierra, en ganancia o en
+  pérdida, y se cancela cualquier pendiente que quede.
+- Desde el viernes 12:00 pm AST hasta la apertura del domingo no se colocan
+  órdenes nuevas (ni el análisis ni la revisión horaria).
+
 ### Break even: DESACTIVADO
 El usuario lo quitó el 22-oct-2026: en los backtests (estrategia 3.8 y señales del
 sheet SMC2) mover el SL a break even al 50 % no mejoró el resultado. La tarea
@@ -86,7 +95,7 @@ posiciones abiertas salvo que el usuario lo pida.
 
 ### Ejecución
 - Cuenta de pruebas: Axi MT5 DEMO, login 10069167.
-- Fuera de la ejecución automática del análisis programado y de la revisión
-  horaria (y siempre en cuentas reales), toda orden se coloca, modifica o cancela solo tras
+- Fuera de la ejecución automática del análisis programado, la revisión
+  horaria y el cierre de viernes (y siempre en cuentas reales), toda orden se coloca, modifica o cancela solo tras
   confirmación explícita del usuario, mostrando antes todos los parámetros.
 - El usuario escribe en español; responder en español.
