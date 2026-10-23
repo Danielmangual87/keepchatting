@@ -99,3 +99,5 @@ posiciones abiertas salvo que el usuario lo pida.
   horaria y el cierre de viernes (y siempre en cuentas reales), toda orden se coloca, modifica o cancela solo tras
   confirmación explícita del usuario, mostrando antes todos los parámetros.
 - El usuario escribe en español; responder en español.
+- Todas las horas se dan y se interpretan en hora de Puerto Rico (AST, UTC−4,
+  sin horario de verano). Las tareas programadas usan CRON_TZ=America/Puerto_Rico.
