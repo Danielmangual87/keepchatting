@@ -52,6 +52,27 @@ RR 1:2.2 y 0.04 lotes.
   sigue del lado correcto y el TP no se ha alcanzado. Si hay una pendiente de
   XAUUSD distinta, se cancela y se reemplaza.
 
+### Revisión horaria de órdenes pendientes
+Autorización del usuario (22-oct-2026, 22:45 AST): mientras haya una orden
+pendiente de XAUUSD en la cuenta DEMO, se revisa cada hora (tarea "Revisión
+horaria XAUUSD DEMO", a los :33 de cada hora, domingo a viernes). Si el precio se alejó mucho de la entrada,
+se reanaliza y, si hace falta, se cancela la vieja y se pone la nueva **sin
+pedir confirmación**, avisando después.
+- No se hace nada si hay una posición abierta (no se mueve SL ni TP), si el
+  mercado está cerrado o si no hay pendiente de XAUUSD.
+- Si la pendiente se llenó desde la última revisión, solo se avisa.
+- "Muy lejos" = el precio se alejó de la entrada al menos 1x
+  `marketMap.H1.avgRange10` más que cuando se colocó la orden (precio de
+  referencia: cierre M5 de la vela de `timeSetup`), o el precio tocó el TP sin
+  llenar la orden.
+- Si el TP se tocó sin llenar: se cancela siempre, y se reanaliza.
+- Reanálisis = procedimiento completo de 3.8 con datos frescos y las reglas de
+  este archivo. Si la señal nueva es ejecutable, distinta y cumple las
+  condiciones del análisis programado → cancelar y colocar la nueva. Si
+  coincide → mantener. Si es `NONE` → mantener la vieja salvo que su zona ya no
+  exista en la estructura o el TP se haya tocado; en ese caso cancelarla.
+- Las revisiones sin cambios no generan mensaje.
+
 ### Break even: DESACTIVADO
 El usuario lo quitó el 22-oct-2026: en los backtests (estrategia 3.8 y señales del
 sheet SMC2) mover el SL a break even al 50 % no mejoró el resultado. La tarea
@@ -60,7 +81,7 @@ posiciones abiertas salvo que el usuario lo pida.
 
 ### Ejecución
 - Cuenta de pruebas: Axi MT5 DEMO, login 10069167.
-- Fuera de la ejecución automática del análisis programado (y siempre en
-  cuentas reales), toda orden se coloca, modifica o cancela solo tras
+- Fuera de la ejecución automática del análisis programado y de la revisión
+  horaria (y siempre en cuentas reales), toda orden se coloca, modifica o cancela solo tras
   confirmación explícita del usuario, mostrando antes todos los parámetros.
 - El usuario escribe en español; responder en español.
