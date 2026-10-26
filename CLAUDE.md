@@ -55,8 +55,8 @@ RR 1:2.2 y 0.04 lotes.
 ### Revisión horaria de órdenes pendientes
 Autorización del usuario (22-oct-2026, 22:45 AST; EURUSD añadido el mismo día):
 mientras haya una orden pendiente de XAUUSD o EURUSD en la cuenta DEMO, se revisa
-cada hora (tarea "Revisión horaria XAUUSD/EURUSD DEMO", a los :33 de cada hora,
-domingo a viernes). Si el precio se alejó mucho de la entrada, se reanaliza y, si
+cada hora (tarea "Revisión horaria XAUUSD/EURUSD DEMO"), solo de lunes a viernes
+entre las 12:30 am y las 12:30 pm AST (horario fijado por el usuario el 25-oct-2026). Si el precio se alejó mucho de la entrada, se reanaliza y, si
 hace falta, se cancela la vieja y se pone la nueva **sin pedir confirmación**,
 avisando después.
 - Cada símbolo se revisa por separado. No se toca un símbolo con posición
