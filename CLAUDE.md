@@ -7,11 +7,19 @@ completo en `claude_trader/README.md`. Las reglas siguientes las fijó el usuari
 y **tienen prioridad sobre `prompt_entry_decision.md`** donde choquen.
 
 ### Riesgo/beneficio
-- RR mínimo aceptable: **1:2** (igual que el prompt de 3.8). Entre 1:2 y 1:2.5
-  es perfectamente válido; no hace falta buscar RR altos.
-- 3.8 no tiene tope de RR ni filtro premium/discount en código.
+Regla del usuario (27-oct-2026), en lugar del mínimo 1:2 del prompt de 3.8:
+- RR **máximo 1:2 y mínimo 1:1**.
+- El TP sigue saliendo del objetivo de liquidez de 3.8. Si ese objetivo queda
+  más allá de 2R, el TP va exactamente en 2R (entrada ∓ 2 × distancia del SL).
+  Si queda entre 1R y 2R, se usa el objetivo tal cual. Si queda a menos de 1R,
+  la señal es `NONE`.
+- 3.8 no tiene tope de RR ni filtro premium/discount en código; el tope lo
+  aplica Claude al escribir `decision.json`.
 - Nunca subir el RR acercando el stop: si el stop correcto deja el RR por debajo
-  de 1:2, la señal es `NONE`.
+  de 1:1, la señal es `NONE`.
+
+Motivo: en las 7 señales llenadas del 18 al 27-oct, con TP en 2R cuatro llegaban
+al TP antes que el SL (+$193 en total), contra +$44 con los TP de liquidez.
 
 ### Stop loss: nada de stops pegados
 - El buffer base es el de 3.8: el mayor entre ~1x `marketMap.M5.avgRange10` y $3.
@@ -28,7 +36,7 @@ y **tienen prioridad sobre `prompt_entry_decision.md`** donde choquen.
 Ejemplo aprobado por el usuario (18-oct-2026): Sell Limit 4181.47 dentro del OB
 bajista de H1 4181.32-4198.92. El SL de 4185.51 ($4.04) fue rechazado por
 ajustado; se aceptó un SL de 4193.12 (mitad del OB 4190.12 + 3) con TP 4156.09,
-RR 1:2.2 y 0.04 lotes.
+RR 1:2.2 y 0.04 lotes. (Con la regla de RR máximo 1:2, ese TP sería 4158.17.)
 
 ### Noticias
 - Como en 3.8, no entran en la decisión: no bloquean ni cambian la orden ni la
@@ -48,7 +56,7 @@ RR 1:2.2 y 0.04 lotes.
 - Autorización del usuario (19-oct-2026, 23:25 AST): en la cuenta DEMO, si el análisis da
   una orden ejecutable, se coloca **sin pedir confirmación** y se le avisa
   después. Condiciones: Buy/Sell Limit con lote no rechazado, riesgo ≤ 1,5 %,
-  RR 1:2 a 1:5, SL no pegado, y una cotización fresca confirma que la entrada
+  RR 1:1 a 1:2, SL no pegado, y una cotización fresca confirma que la entrada
   sigue del lado correcto y el TP no se ha alcanzado. Si hay una pendiente de
   XAUUSD distinta, se cancela y se reemplaza.
 
