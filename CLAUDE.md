@@ -7,19 +7,48 @@ completo en `claude_trader/README.md`. Las reglas siguientes las fijó el usuari
 y **tienen prioridad sobre `prompt_entry_decision.md`** donde choquen.
 
 ### Riesgo/beneficio
-Regla del usuario (27-oct-2026), en lugar del mínimo 1:2 del prompt de 3.8:
-- RR **máximo 1:2 y mínimo 1:1**.
-- El TP sigue saliendo del objetivo de liquidez de 3.8. Si ese objetivo queda
-  más allá de 2R, el TP va exactamente en 2R (entrada ∓ 2 × distancia del SL).
-  Si queda entre 1R y 2R, se usa el objetivo tal cual. Si queda a menos de 1R,
-  la señal es `NONE`.
+Regla del usuario (28-oct-2026; sustituye el tope 1:1-1:2 del 27-oct):
+- RR **mínimo 1:2 y máximo 1:5**, con el TP en el objetivo de liquidez de 3.8.
+  Si ese objetivo queda más allá de 5R, el TP va en 5R (entrada ∓ 5 × distancia
+  del SL). Si queda a menos de 2R, la señal es `NONE`.
 - 3.8 no tiene tope de RR ni filtro premium/discount en código; el tope lo
   aplica Claude al escribir `decision.json`.
 - Nunca subir el RR acercando el stop: si el stop correcto deja el RR por debajo
-  de 1:1, la señal es `NONE`.
+  de 1:2, la señal es `NONE`.
 
-Motivo: en las 7 señales llenadas del 18 al 27-oct, con TP en 2R cuatro llegaban
-al TP antes que el SL (+$193 en total), contra +$44 con los TP de liquidez.
+Motivo: el tope 1:1-1:2 salió de 7 señales de una tendencia bajista. En el
+backtest de 9 meses (27-ene a 28-oct-2026, versión mecánica de 3.8) fue la peor
+forma de poner el TP: −12.8R en 125 operaciones contra −5.4R con 2R-5R, y con el
+filtro de entrada de abajo −1.5R contra +12.2R.
+
+### Entrada: no pegada al precio
+Regla del usuario (28-oct-2026), XAUUSD y EURUSD:
+- Al colocar una orden nueva (análisis programado, reanálisis de la revisión
+  horaria o análisis a pedido), la entrada tiene que estar al menos a
+  **0.5x `marketMap.H1.avgRange10`** del precio actual (bid de `get_mt5_quote`):
+  por encima para Sell Limit, por debajo para Buy Limit.
+- Si la entrada que da 3.8 queda más cerca, la señal es `NONE`. No se mueve la
+  entrada para cumplir la distancia.
+- No aplica a una pendiente ya colocada a la que el precio se le acerca: esa se
+  deja llenar.
+
+Motivo: en el backtest, la mitad de las órdenes se llenaban en menos de una
+hora tras las 00:01 (61 de 125) y ahí estaba casi toda la pérdida (−12.7R). Con
+la entrada a ≥ 0.5x H1 del precio, 3.8 con RR 2-5 dio 45 operaciones, +12.2R y
+una caída máxima de 4.2R. El resultado no es concluyente (error de ±12R): se
+revisa cuando haya ~40 operaciones en DEMO con estas reglas.
+
+### XAUUSD y EURUSD: una sola apuesta al dólar
+Regla del usuario (28-oct-2026):
+- Vender oro o EURUSD es comprar dólares, y comprarlos es vender dólares. No se
+  tienen a la vez órdenes pendientes ni posiciones de los dos símbolos en la
+  misma dirección (las dos ventas o las dos compras).
+- Si ya hay una pendiente o una posición de uno y la señal del otro va en la
+  misma dirección, la señal se informa pero no se coloca. En direcciones
+  contrarias sí se permite.
+
+Motivo: el 20-oct las ventas de XAUUSD y EURUSD llegaron al SL con 4 minutos
+de diferencia (−$94, casi 2 % de la cuenta).
 
 ### Stop loss: nada de stops pegados
 - El buffer base es el de 3.8: el mayor entre ~1x `marketMap.M5.avgRange10` y $3.
@@ -36,7 +65,7 @@ al TP antes que el SL (+$193 en total), contra +$44 con los TP de liquidez.
 Ejemplo aprobado por el usuario (18-oct-2026): Sell Limit 4181.47 dentro del OB
 bajista de H1 4181.32-4198.92. El SL de 4185.51 ($4.04) fue rechazado por
 ajustado; se aceptó un SL de 4193.12 (mitad del OB 4190.12 + 3) con TP 4156.09,
-RR 1:2.2 y 0.04 lotes. (Con la regla de RR máximo 1:2, ese TP sería 4158.17.)
+RR 1:2.2 y 0.04 lotes.
 
 ### Noticias
 - Como en 3.8, no entran en la decisión: no bloquean ni cambian la orden ni la
@@ -56,9 +85,12 @@ RR 1:2.2 y 0.04 lotes. (Con la regla de RR máximo 1:2, ese TP sería 4158.17.)
 - Autorización del usuario (19-oct-2026, 23:25 AST): en la cuenta DEMO, si el análisis da
   una orden ejecutable, se coloca **sin pedir confirmación** y se le avisa
   después. Condiciones: Buy/Sell Limit con lote no rechazado, riesgo ≤ 1,5 %,
-  RR 1:1 a 1:2, SL no pegado, y una cotización fresca confirma que la entrada
-  sigue del lado correcto y el TP no se ha alcanzado. Si hay una pendiente de
-  XAUUSD distinta, se cancela y se reemplaza.
+  RR 1:2 a 1:5, SL no pegado, entrada a ≥ 0.5x `marketMap.H1.avgRange10` del
+  precio, sin pendiente ni posición del otro símbolo (EURUSD para XAUUSD y al
+  revés) en la misma dirección, y una
+  cotización fresca confirma que la entrada sigue del lado correcto y el TP no
+  se ha alcanzado. Si hay una pendiente de XAUUSD distinta, se cancela y se
+  reemplaza.
 
 ### Revisión horaria de órdenes pendientes
 Autorización del usuario (22-oct-2026, 22:45 AST; EURUSD añadido el mismo día):
