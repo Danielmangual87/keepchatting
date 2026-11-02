@@ -7,9 +7,9 @@ completo en `claude_trader/README.md`. Las reglas siguientes las fijó el usuari
 y **tienen prioridad sobre `prompt_entry_decision.md`** donde choquen.
 
 ### Riesgo/beneficio
-Regla del usuario (28-oct-2026; sustituye el tope 1:1-1:2 del 27-oct):
-- RR **mínimo 1:2 y máximo 1:5**, con el TP en el objetivo de liquidez de 3.8.
-  Si ese objetivo queda más allá de 5R, el TP va en 5R (entrada ∓ 5 × distancia
+Regla del usuario (2-nov-2026; baja el máximo de 1:5 del 28-oct a 1:3):
+- RR **mínimo 1:2 y máximo 1:3**, con el TP en el objetivo de liquidez de 3.8.
+  Si ese objetivo queda más allá de 3R, el TP va en 3R (entrada ∓ 3 × distancia
   del SL). Si queda a menos de 2R, la señal es `NONE`.
 - 3.8 no tiene tope de RR ni filtro premium/discount en código; el tope lo
   aplica Claude al escribir `decision.json`.
@@ -19,7 +19,8 @@ Regla del usuario (28-oct-2026; sustituye el tope 1:1-1:2 del 27-oct):
 Motivo: el tope 1:1-1:2 salió de 7 señales de una tendencia bajista. En el
 backtest de 9 meses (27-ene a 28-oct-2026, versión mecánica de 3.8) fue la peor
 forma de poner el TP: −12.8R en 125 operaciones contra −5.4R con 2R-5R, y con el
-filtro de entrada de abajo −1.5R contra +12.2R.
+filtro de entrada de abajo −1.5R contra +12.2R. El 2-nov el usuario bajó el
+máximo a 1:3; el rango 2R-3R no se ha probado en ese backtest.
 
 ### Entrada: no pegada al precio
 Regla del usuario (28-oct-2026), XAUUSD y EURUSD:
@@ -85,7 +86,7 @@ RR 1:2.2 y 0.04 lotes.
 - Autorización del usuario (19-oct-2026, 23:25 AST): en la cuenta DEMO, si el análisis da
   una orden ejecutable, se coloca **sin pedir confirmación** y se le avisa
   después. Condiciones: Buy/Sell Limit con lote no rechazado, riesgo ≤ 1,5 %,
-  RR 1:2 a 1:5, SL no pegado, entrada a ≥ 0.5x `marketMap.H1.avgRange10` del
+  RR 1:2 a 1:3, SL no pegado, entrada a ≥ 0.5x `marketMap.H1.avgRange10` del
   precio, sin pendiente ni posición del otro símbolo (EURUSD para XAUUSD y al
   revés) en la misma dirección, y una
   cotización fresca confirma que la entrada sigue del lado correcto y el TP no
