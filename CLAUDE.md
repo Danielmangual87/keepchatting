@@ -19,25 +19,21 @@ Regla del usuario (2-nov-2026; baja el máximo de 1:5 del 28-oct a 1:3):
 Motivo: el tope 1:1-1:2 salió de 7 señales de una tendencia bajista. En el
 backtest de 9 meses (27-ene a 28-oct-2026, versión mecánica de 3.8) fue la peor
 forma de poner el TP: −12.8R en 125 operaciones contra −5.4R con 2R-5R, y con el
-filtro de entrada de abajo −1.5R contra +12.2R. El 2-nov el usuario bajó el
+filtro de distancia de entrada (desactivado el 10-nov) −1.5R contra +12.2R. El 2-nov el usuario bajó el
 máximo a 1:3; el rango 2R-3R no se ha probado en ese backtest.
 
-### Entrada: no pegada al precio
-Regla del usuario (28-oct-2026), XAUUSD y EURUSD:
-- Al colocar una orden nueva (análisis programado, reanálisis de la revisión
-  horaria o análisis a pedido), la entrada tiene que estar al menos a
-  **0.5x `marketMap.H1.avgRange10`** del precio actual (bid de `get_mt5_quote`):
-  por encima para Sell Limit, por debajo para Buy Limit.
-- Si la entrada que da 3.8 queda más cerca, la señal es `NONE`. No se mueve la
-  entrada para cumplir la distancia.
-- No aplica a una pendiente ya colocada a la que el precio se le acerca: esa se
-  deja llenar.
+### Entrada cerca del precio: permitida (filtro de distancia DESACTIVADO)
+El usuario quitó el 10-nov-2026 la regla del 28-oct que exigía la entrada a
+≥ 0.5x `marketMap.H1.avgRange10` del precio: "No hay problema que la entrada
+esté cerca. El problema es que el SL esté cerca." La entrada de 3.8 se usa tal
+cual, aunque quede cerca del bid, siempre que siga del lado correcto (Buy Limit
+por debajo del precio, Sell Limit por encima). Lo que no se permite es un SL
+pegado (sección "Stop loss").
 
-Motivo: en el backtest, la mitad de las órdenes se llenaban en menos de una
-hora tras las 00:01 (61 de 125) y ahí estaba casi toda la pérdida (−12.7R). Con
-la entrada a ≥ 0.5x H1 del precio, 3.8 con RR 2-5 dio 45 operaciones, +12.2R y
-una caída máxima de 4.2R. El resultado no es concluyente (error de ±12R): se
-revisa cuando haya ~40 operaciones en DEMO con estas reglas.
+Contexto: en el backtest de 9 meses ese filtro pasaba 3.8 (RR 2-5) de −5.4R en
+125 operaciones a +12.2R en 45, pero el resultado no era concluyente (±12R). El
+10-nov, la primera orden colocada sin el filtro (Buy Limit 4105.97, a $10 del
+precio) se llenó y tocó el SL en la misma vela M5 (−$43.68).
 
 ### XAUUSD y EURUSD: una sola apuesta al dólar
 Regla del usuario (28-oct-2026):
@@ -86,9 +82,8 @@ RR 1:2.2 y 0.04 lotes.
 - Autorización del usuario (19-oct-2026, 23:25 AST): en la cuenta DEMO, si el análisis da
   una orden ejecutable, se coloca **sin pedir confirmación** y se le avisa
   después. Condiciones: Buy/Sell Limit con lote no rechazado, riesgo ≤ 1,5 %,
-  RR 1:2 a 1:3, SL no pegado, entrada a ≥ 0.5x `marketMap.H1.avgRange10` del
-  precio, sin pendiente ni posición del otro símbolo (EURUSD para XAUUSD y al
-  revés) en la misma dirección, y una
+  RR 1:2 a 1:3, SL no pegado, sin pendiente ni posición del otro símbolo
+  (EURUSD para XAUUSD y al revés) en la misma dirección, y una
   cotización fresca confirma que la entrada sigue del lado correcto y el TP no
   se ha alcanzado. Si hay una pendiente de XAUUSD distinta, se cancela y se
   reemplaza.
