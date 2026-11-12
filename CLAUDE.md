@@ -6,6 +6,20 @@ Versión activa: **XAUUSD 3.8 - restaurado (00:01, sin noticias)**. Procedimient
 completo en `claude_trader/README.md`. Las reglas siguientes las fijó el usuario
 y **tienen prioridad sobre `prompt_entry_decision.md`** donde choquen.
 
+### Tendencia: solo a favor (H4 y H1 iguales)
+Regla del usuario (12-nov-2026): solo se opera a favor de la tendencia.
+- Se opera solo si `marketMap.H4.trend` y `marketMap.H1.trend` coinciden:
+  las dos alcistas → solo compras (Buy Limit); las dos bajistas → solo ventas
+  (Sell Limit). Si no coinciden (o alguna no está definida), la señal es `NONE`.
+- D1 puede ir en contra. M5 puede ir en contra (es donde se busca la entrada).
+- Sustituye al sesgo por mayoría de D1/H4/H1 de 3.8 (score 1), que dejaba
+  operar con H1 en contra. Vale para XAUUSD y EURUSD (análisis y reanálisis
+  de la revisión horaria). En el código: `decide(s, {maxRR: 3, align: ["H4", "H1"]})`.
+
+Motivo: el 11 y el 12-nov se colocaron compras con H1 bajista (score 1). La del
+11-nov tocó el SL (−$43.80). El usuario mantuvo la Buy Limit #138557256 del
+12-nov (colocada antes de la regla); la regla rige desde el siguiente análisis.
+
 ### Riesgo/beneficio
 Regla del usuario (2-nov-2026; baja el máximo de 1:5 del 28-oct a 1:3):
 - RR **mínimo 1:2 y máximo 1:3**, con el TP en el objetivo de liquidez de 3.8.
@@ -81,7 +95,7 @@ RR 1:2.2 y 0.04 lotes.
   sesión.
 - Autorización del usuario (19-oct-2026, 23:25 AST): en la cuenta DEMO, si el análisis da
   una orden ejecutable, se coloca **sin pedir confirmación** y se le avisa
-  después. Condiciones: Buy/Sell Limit con lote no rechazado, riesgo ≤ 1,5 %,
+  después. Condiciones: Buy/Sell Limit a favor de la tendencia (H4 y H1 iguales) con lote no rechazado, riesgo ≤ 1,5 %,
   RR 1:2 a 1:3, SL no pegado, sin pendiente ni posición del otro símbolo
   (EURUSD para XAUUSD y al revés) en la misma dirección, y una
   cotización fresca confirma que la entrada sigue del lado correcto y el TP no

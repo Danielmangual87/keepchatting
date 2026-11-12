@@ -4,6 +4,7 @@
 
 const DEFAULTS = {
   minScore: 1,        // sesgo = mayoria de tendencias D1/H4/H1 (1 = mayoria simple, 2 = estricto)
+  align: null,        // p.ej. ["H4","H1"]: esas tendencias deben coincidir y marcan la direccion (regla 12-nov-2026)
   premiumOnly: false, // venta solo por encima del equilibrio de H1 (compra por debajo)
   maxZones: 3,        // zonas M5 a probar, de la mas cercana a la mas lejana
   slMinMult: 0.75,    // distancia minima del SL = slMinMult x H1.avgRange10
@@ -26,7 +27,13 @@ function decide(s, params = {}) {
   if (!s.dataQuality.usable) return { none: "datos no usables" };
 
   const score = vote(mm.D1.trend) + vote(mm.H4.trend) + vote(mm.H1.trend);
-  const dir = score >= p.minScore ? "buy" : score <= -p.minScore ? "sell" : null;
+  let dir = score >= p.minScore ? "buy" : score <= -p.minScore ? "sell" : null;
+  if (p.align) {
+    const votes = p.align.map((tf) => vote(mm[tf].trend));
+    const same = votes.every((v) => v !== 0 && v === votes[0]);
+    if (!same) return { none: `tendencias ${p.align.join("/")} no coinciden (${p.align.map((tf) => mm[tf].trend).join("/")})`, score };
+    dir = votes[0] > 0 ? "buy" : "sell";
+  }
   if (!dir) return { none: `sesgo mixto (score ${score})`, score };
   const sell = dir === "sell";
   const zdir = sell ? "bearish" : "bullish";
